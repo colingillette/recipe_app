@@ -10,7 +10,7 @@ public class Menu {
 	
 	// Constructor
 	public Menu() {
-		step = "start";
+		this.step = "start";
 	}
 	
 	// Runs on application initialization. Returns command for what to do next
@@ -76,7 +76,10 @@ public class Menu {
 		}
 	}
 	
-	// getters and setters
+	/* 
+	 * getters and setters
+	 */
+	
 	public String get_step() {
 		return this.step;
 	}
