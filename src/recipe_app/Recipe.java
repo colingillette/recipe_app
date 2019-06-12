@@ -46,6 +46,9 @@ public class Recipe {
 	public String get_name() {
 		return this.name;
 	}
+	public void set_name(String new_name) {
+		this.name = new_name;
+	}
 	public String get_category() {
 		return this.category;
 	}
