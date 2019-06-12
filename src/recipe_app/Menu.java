@@ -50,6 +50,32 @@ public class Menu {
 		return selection;
 	}
 	
+	// Direct the menu to do the next step after start
+	public void direct(String step_in, int instruction_in) {
+		if (step_in == "start") {
+			switch (instruction_in) {
+				case 1:
+					this.set_step("create");
+					break;
+				case 2:
+					this.set_step("search");
+					break;
+				case 3:
+					this.set_step("search");
+					break;
+				case 4:
+					this.set_step("search");
+					break;
+				case 5:
+					this.set_step("search");
+					break;
+				default:
+					System.out.println("Program Successfully Ended");
+					System.exit(0);
+			}
+		}
+	}
+	
 	// getters and setters
 	public String get_step() {
 		return this.step;
