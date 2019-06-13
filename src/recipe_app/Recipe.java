@@ -1,7 +1,6 @@
 package recipe_app;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.*;
 import java.util.*;
 
 public class Recipe {
@@ -93,13 +92,51 @@ public class Recipe {
 			
 			step++;
 		}
-		
+	}
+	
+	private int receiveCategoryChoice(String input, Scanner scanner) {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection connect = DriverManager.getConnection("jdbc:mysql://locahlhost/recipe_app?" + "user=cag35&password=cag35"); 
+			return Integer.parseInt(input);
 		} catch (Exception e) {
-			System.out.println("Something went wrong when trying to add that recipe to the database. Please try again.");
+			System.out.println("Please ensure you have entered correct input. It should just be the number of your selection.");
+			return receiveCategoryChoice(scanner.next(), scanner);
 		}
+	}
+	
+	private String interpretCategoryChoice(int choice, Scanner scanner) throws SQLException, ClassNotFoundException {
+		if (choice == 0) {
+			System.out.println("Please enter the name of your new category!");
+			String newCategory = scanner.next();
+			if (newCategory.length() > 45) {
+				newCategory = newCategory.substring(0, 44);
+			}
+			writeNewCategory(newCategory);
+			return newCategory;
+		}
+		else {
+			return selectCategory(choice);
+		}
+	}
+	
+	private void writeNewCategory(String cat) throws SQLException, ClassNotFoundException {
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection connect = DriverManager.getConnection("jdbc:mysql://locahlhost/recipe_app?" + "user=cag35&password=cag35");
+		PreparedStatement statement = connect.prepareStatement("insert into categories (category) values ('?');");
+		statement.setString(1, cat);
+		Resources.close(connect, statement);
+	}
+	
+	private String selectCategory(int id) throws ClassNotFoundException, SQLException {
+		String result;
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection connect = DriverManager.getConnection("jdbc:mysql://locahlhost/recipe_app?" + "user=cag35&password=cag35");
+		Statement statement = connect.createStatement();
+		ResultSet resultSet = statement.executeQuery("select category from categories where category_id = " + Integer.toString(id));
+		result = resultSet.getString("category");
+		
+		Resources.close(connect, statement, resultSet);
+		
+		return result;
 	}
 	
 	/*
@@ -108,15 +145,44 @@ public class Recipe {
 	public String get_name() {
 		return this.name;
 	}
+	
 	public void set_name(String new_name) {
+		if (new_name.length() > 50) {
+			new_name = new_name.substring(0, 49);
+		}
+		
 		this.name = new_name;
 	}
+	
 	public String get_category() {
 		return this.category;
 	}
-	public void set_category(String cat_in) {
-		this.category = cat_in;
+	
+	public void set_category() {
+		Scanner scanner = new Scanner(System.in);
+		
+		try {
+			String categoryQuery = "";
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection connect = DriverManager.getConnection("jdbc:mysql://locahlhost/recipe_app?" + "user=cag35&password=cag35");
+			Statement statement = connect.createStatement();
+			ResultSet resultSet = statement.executeQuery(categoryQuery);
+			Resources.writeResultSet(resultSet, "categories");
+			System.out.println("Enter '0' to create a new category, or enter the number of the choice you would like to make.");
+			
+			int choice = receiveCategoryChoice(scanner.next(), scanner);
+			this.category = interpretCategoryChoice(choice, scanner);
+			
+			if (!Resources.close(connect, statement, resultSet)) {
+				System.out.println("Something broke when trying to close Database Resources");
+			}
+		} catch (Exception e) {
+			System.out.println("Something went wrong when trying to display the category list.");
+		} finally {
+			scanner.close();
+		}
 	}
+	
 	public String[] get_tags() {
 		return this.tags;
 	}
